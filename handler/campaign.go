@@ -111,3 +111,29 @@ func (h *campaignHandler) UpdateCampaign(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 
 }
+
+func (h *campaignHandler) DeleteCampaign(c *gin.Context) {
+
+	var inputID campaign.GetCampaignDetailInput
+
+	err := c.ShouldBindUri(&inputID)
+	if err != nil {
+		response := helper.APIResponse("Failed to delete campaign", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	var deleteData campaign.CreateCampaignInput
+
+	currentUser := c.MustGet("currentUser").(user.User)
+	deleteData.User = currentUser
+
+	_, err = h.service.DeleteCampaign(inputID, deleteData)
+	if err != nil {
+		response := helper.APIResponse("Failed to delete campaign", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	response := helper.APIResponse("Success to delete campaign", http.StatusOK, "success", nil)
+	c.JSON(http.StatusOK, response)
+}

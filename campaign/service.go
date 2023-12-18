@@ -12,7 +12,7 @@ type Service interface {
 	GetCampaignByID(input GetCampaignDetailInput) (Campaign, error)
 	CreateCampaign(input CreateCampaignInput) (Campaign, error)
 	UpdateCampaign(inputID GetCampaignDetailInput, inputData CreateCampaignInput) (Campaign, error)
-	Delete(inputID GetCampaignDetailInput) (Campaign, error)
+	DeleteCampaign(inputID GetCampaignDetailInput, deleteData CreateCampaignInput) (Campaign, error)
 }
 
 type service struct {
@@ -90,11 +90,17 @@ func (s *service) UpdateCampaign(inputID GetCampaignDetailInput, inputData Creat
 	return updatedCampaign, nil
 }
 
-func (s *service) Delete(inputID GetCampaignDetailInput) (Campaign, error) {
+func (s *service) DeleteCampaign(inputID GetCampaignDetailInput, deleteData CreateCampaignInput) (Campaign, error) {
 	campaign, err := s.repository.FindByID(inputID.ID)
+
 	if err != nil {
 		return campaign, err
 	}
+
+	if campaign.UserID != deleteData.User.ID {
+		return campaign, errors.New("not an owner of the campaign")
+	}
+
 	deletedCampaign, err := s.repository.Delete(campaign)
 	if err != nil {
 		return deletedCampaign, err
