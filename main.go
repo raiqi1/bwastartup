@@ -5,6 +5,7 @@ import (
 	"bwastart/campaign"
 	"bwastart/handler"
 	"bwastart/helper"
+	"bwastart/transaction"
 	"bwastart/user"
 	"log"
 	"net/http"
@@ -25,12 +26,17 @@ func main() {
 	}
 	userRepository := user.NewRepository(db)
 	campaignRepository := campaign.NewRepository(db)
+	transactionRepository := transaction.NewRepository(db)
 
 	userService := user.NewService(userRepository)
 	campaignService := campaign.NewService(campaignRepository)
 	authService := auth.NewService()
 
+	transactionService := transaction.NewService(transactionRepository, campaignRepository)
+
 	campaignHandler := handler.NewCampaignHandler(campaignService)
+
+	transactionHandler := handler.NewTransactionHandler(transactionService)
 
 	userHandler := handler.NewUserHandler(userService, authService)
 
@@ -48,6 +54,7 @@ func main() {
 	api.PUT("/campaigns/:id", authMiddleware(authService, userService), campaignHandler.UpdateCampaign)
 	api.DELETE("/campaigns/:id", authMiddleware(authService, userService), campaignHandler.DeleteCampaign)
 	api.POST("/campaign-images", authMiddleware(authService, userService), campaignHandler.UploadImage)
+	api.GET("/campaigns/:id/transactions", authMiddleware(authService, userService), transactionHandler.GetCampaignTransaction)
 
 	router.Run()
 }
