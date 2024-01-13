@@ -55,6 +55,7 @@ func main() {
 	api.DELETE("/campaigns/:id", authMiddleware(authService, userService), campaignHandler.DeleteCampaign)
 	api.POST("/campaign-images", authMiddleware(authService, userService), campaignHandler.UploadImage)
 	api.GET("/campaigns/:id/transactions", authMiddleware(authService, userService), transactionHandler.GetCampaignTransaction)
+	api.GET("/transactions", authMiddleware(authService, userService), transactionHandler.GetUserTransaction)
 
 	router.Run()
 }
